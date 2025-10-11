@@ -1,0 +1,91 @@
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+    
+
+
+
+
+}
+  
+  /* Small devices (portrait tablets and large phones, 600px and up) */
+  @media only screen and (min-width: 600px) {
+    
+
+
+    
+  }
+  
+  /* Medium devices (landscape tablets, 768px and up) */
+  @media only screen and (min-width: 768px) {
+    
+  } 
+  
+  /* Large devices (laptops/desktops, 992px and up) */
+  @media only screen and (min-width: 992px) {
+    
+  } 
+  
+  /* Extra large devices (large laptops and desktops, 1200px and up) */
+  @media only screen and (min-width: 1200px) {
+    
+  }
+
+
+/* ---------------------------------------------------------------------- */
+
+Common breakpoints for responsive design using CSS media queries, often defined with min-width and max-width in pixels, are as follows.
+Standard Breakpoints:
+Extra Small (Mobile Devices):
+@media (max-width: 480px): Targets most mobile phones in portrait orientation.
+@media (min-width: 320px) and (max-width: 480px): A more specific range for mobile devices.
+Small (Tablets/Phablets):
+@media (min-width: 481px) and (max-width: 768px): Targets tablets and larger mobile devices.
+Medium (Laptops/Small Desktops):
+@media (min-width: 769px) and (max-width: 1024px): Targets laptops and smaller desktop screens.
+Large (Desktops/Large Screens):
+@media (min-width: 1025px) and (max-width: 1200px): Targets standard desktops and larger screens.
+Extra Large (Large Desktops/TVs):
+@media (min-width: 1201px): Targets extra-large screens and televisions.
+
+
+/* ------ */
+/* Styles for extra-small screens (mobile) */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+  .container {
+    width: 95%;
+  }
+}
+
+/* Styles for small screens (tablets) */
+@media (min-width: 481px) and (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+  .container {
+    width: 90%;
+  }
+}
+
+/* Styles for medium screens (laptops) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  body {
+    font-size: 18px;
+  }
+  .container {
+    width: 80%;
+  }
+}
+
+/* Styles for large screens (desktops) */
+@media (min-width: 1025px) {
+  body {
+    font-size: 20px;
+  }
+  .container {
+    width: 70%;
+  }
+}
+/* ------------------------------------------ */
