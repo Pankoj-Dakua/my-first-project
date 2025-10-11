@@ -253,7 +253,7 @@
 }
 
 /* Styles for extra-small screens (mobile) */
-@media screen and (max-width: 720px) {
+@media screen and (min-width: 481px) and (max-width: 772px) {
   .logo_2 {
     font-size: 22px;
   }
