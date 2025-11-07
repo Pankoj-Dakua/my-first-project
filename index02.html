@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Document: Send / Send Back UI</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --accent:#2563eb;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --glass: rgba(18,23,33,0.04);
+    --radius:12px;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,var(--bg),#eef2ff 120%);
+    padding:32px;
+    -webkit-font-smoothing:antialiased;
+    color:#0f172a;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap:20px;
+  }
+
+  .container{
+    width:930px;
+    max-width:95%;
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow: 0 8px 30px rgba(2,6,23,0.08);
+    padding:22px;
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:18px;
+    align-items:start;
+  }
+
+  .doc {
+    background:linear-gradient(180deg,#fff,#fbfdff);
+    border-radius:10px;
+    padding:18px;
+    border:1px solid var(--glass);
+  }
+  .doc h2{margin:0 0 8px 0;font-size:18px}
+  .meta{color:var(--muted);font-size:13px;margin-bottom:12px}
+  .preview {
+    border-radius:8px;
+    padding:12px;
+    background:#fbfdff;
+    border:1px dashed rgba(37,99,235,0.06);
+    min-height:160px;
+    font-size:14px;
+    color:#0b1220;
+    line-height:1.45;
+  }
+
+  .controls {
+    display:flex;
+    gap:10px;
+    margin-top:14px;
+  }
+
+  .btn {
+    display:inline-flex;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    padding:10px 14px;
+    border-radius:10px;
+    border:0;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform .06s ease, box-shadow .06s ease, opacity .12s;
+    box-shadow: 0 3px 10px rgba(2,6,23,0.06);
+    background:linear-gradient(180deg,#fff,#f8fafc);
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;transform:none; box-shadow:none}
+
+  .btn-primary{
+    background:linear-gradient(180deg,#2563eb,#1e40af);
+    color:white;
+    box-shadow: 0 6px 18px rgba(37,99,235,0.18);
+  }
+  .btn-outline{
+    background:transparent;
+    border:1px solid rgba(15,23,42,0.06);
+  }
+  .btn-danger{
+    background:linear-gradient(180deg,#ef4444,#dc2626);
+    color:white;
+    box-shadow: 0 6px 18px rgba(220,38,38,0.12);
+  }
+
+  /* Right column - status + comments */
+  .panel{
+    background:linear-gradient(180deg,#fff,#fbfdff);
+    border-radius:10px;
+    padding:16px;
+    border:1px solid var(--glass);
+    min-height:120px;
+  }
+  .status{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .badge{
+    padding:8px 10px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:13px;
+  }
+  .badge.idle{background:rgba(15,23,42,0.06); color:#071029}
+  .badge.sending{background:rgba(37,99,235,0.12); color:var(--accent)}
+  .badge.success{background:rgba(16,185,129,0.12); color:var(--success)}
+  .badge.error{background:rgba(239,68,68,0.10); color:var(--danger)}
+
+  .comment-area{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  textarea{
+    border-radius:8px;
+    padding:10px;
+    border:1px solid rgba(2,6,23,0.06);
+    min-height:88px;
+    resize:vertical;
+    font-size:13px;
+    line-height:1.4;
+  }
+
+  footer.small{
+    margin-top:10px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  /* Modal */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(2,6,23,0.35);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1200;
+  }
+  .overlay.show{display:flex}
+  .modal{
+    width:420px;
+    max-width:94%;
+    background:white;
+    border-radius:12px;
+    padding:18px;
+    box-shadow:0 20px 60px rgba(2,6,23,0.28);
+  }
+  .modal h3{margin:0 0 10px 0}
+  .modal p{margin:0 0 14px 0;color:var(--muted)}
+  .modal .row{display:flex;gap:8px;justify-content:flex-end}
+
+  /* tiny helpers */
+  .muted{color:var(--muted);font-size:13px}
+  .small{font-size:13px}
+  @media (max-width:880px){
+    .container{grid-template-columns:1fr; padding:18px}
+  }
+</style>
+</head>
+<body>
+  <main class="container" id="app">
+    <section class="doc" aria-labelledby="docTitle">
+      <h2 id="docTitle">Expense report — Q4 travel</h2>
+      <div class="meta">From: <strong>Md. Pankoj</strong> • To: <strong>Senior Officer</strong> • Last updated: <time id="updatedAt">Nov 7, 2025</time></div>
+
+      <div class="preview" id="preview" aria-live="polite">
+        <p><strong>Summary:</strong> This document contains the expense report for client visits in Q4. Total amount: BDT 98,750. Receipts attached.</p>
+        <p><strong>Attachments:</strong> receipts.pdf, itinerary.pdf</p>
+      </div>
+
+      <div class="controls" role="region" aria-label="Actions">
+        <button id="btnSend" class="btn btn-primary" title="Send to senior officer" aria-describedby="sendDesc">
+          <!-- SVG send icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"></path><path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M22 2l-7 20  -3-9-9-3 20-7z"></path></svg>
+          <span>Send</span>
+        </button>
+
+        <button id="btnSendBack" class="btn btn-outline" title="Send back for clarification" aria-describedby="sendBackDesc">
+          <!-- reply icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7 7-7"></path><path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M3 12h11a7 7 0 0 1 7 7v0"></path></svg>
+          <span>Send back</span>
+        </button>
+
+        <button id="btnDownload" class="btn btn-outline" title="Download the document" aria-label="Download">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12"></path><path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M7 10l5 5 5-5"></path></svg>
+          <span>Download</span>
+        </button>
+      </div>
+
+      <div class="small muted" id="sendDesc" style="margin-top:8px">Click <strong>Send</strong> to forward to the senior officer. Click <strong>Send back</strong> to return with comments.</div>
+    </section>
+
+    <aside class="panel" aria-labelledby="statusTitle">
+      <h3 id="statusTitle">Status</h3>
+
+      <div class="status" aria-live="polite">
+        <div id="badge" class="badge idle">Idle</div>
+        <div class="muted small" id="statusText">No action taken yet.</div>
+      </div>
+
+      <div class="comment-area" id="commentArea">
+        <label for="comment"><strong>Comment (optional)</strong></label>
+        <textarea id="comment" placeholder="Add a message when sending back (e.g. what's missing or what to correct)"></textarea>
+        <footer class="small muted">Comments are included with the send-back action only.</footer>
+      </div>
+    </aside>
+
+    <!-- Modal confirm -->
+    <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="modal" role="document" aria-labelledby="modalTitle">
+        <h3 id="modalTitle">Confirm action</h3>
+        <p id="modalMessage">Are you sure?</p>
+        <div class="row">
+          <button id="modalCancel" class="btn btn-outline">Cancel</button>
+          <button id="modalConfirm" class="btn btn-primary">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+<script>
+/*
+  JavaScript behavior:
+  - Shows confirmation modal on Send / Send back
+  - For Send back: reads comment text and includes in payload
+  - Simulates network call (setTimeout). Replace simulateNetwork() with fetch() to call a real API.
+  - Updates UI states and handles success/error
+*/
+
+(function(){
+  // Element refs
+  const btnSend = document.getElementById('btnSend');
+  const btnSendBack = document.getElementById('btnSendBack');
+  const btnDownload = document.getElementById('btnDownload');
+  const overlay = document.getElementById('overlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalMessage = document.getElementById('modalMessage');
+  const modalConfirm = document.getElementById('modalConfirm');
+  const modalCancel = document.getElementById('modalCancel');
+  const badge = document.getElementById('badge');
+  const statusText = document.getElementById('statusText');
+  const commentInput = document.getElementById('comment');
+  const updatedAt = document.getElementById('updatedAt');
+
+  // Keep current action ('send' | 'sendBack') for modal confirm
+  let currentAction = null;
+  let isSending = false;
+
+  // Accessibility: trap focus inside modal when open (simple)
+  let lastFocused = null;
+
+  function openModal(action, message){
+    currentAction = action;
+    modalTitle.textContent = action === 'send' ? 'Send document' : 'Send back document';
+    modalMessage.textContent = message || (action === 'send' ? 'Are you sure you want to send this document to the senior officer?' : 'Are you sure you want to send this document back with the comment?');
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden','false');
+    lastFocused = document.activeElement;
+    modalConfirm.focus();
+    document.addEventListener('keydown', handleKeyDown);
+  }
+
+  function closeModal(){
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden','true');
+    currentAction = null;
+    if(lastFocused) lastFocused.focus();
+    document.removeEventListener('keydown', handleKeyDown);
+  }
+
+  function handleKeyDown(e){
+    if(e.key === 'Escape') closeModal();
+  }
+
+  modalCancel.addEventListener('click', closeModal);
+
+  overlay.addEventListener('click', (e)=> {
+    if(e.target === overlay) closeModal();
+  });
+
+  // Buttons
+  btnSend.addEventListener('click', ()=> openModal('send'));
+  btnSendBack.addEventListener('click', ()=> {
+    const comment = commentInput.value.trim();
+    if(!comment){
+      // encourage comment for send-back but allow empty
+      openModal('sendBack', 'You did not add a comment. Are you sure you want to send it back without a message?');
+    } else {
+      openModal('sendBack', `Send back with comment: "${comment}"`);
+    }
+  });
+
+  btnDownload.addEventListener('click', ()=> {
+    // For demo: create a simple text blob. In real app, point to actual file URL.
+    const data = "Sample document contents - expense report (demo)";
+    const blob = new Blob([data], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'document.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Confirm action in modal
+  modalConfirm.addEventListener('click', async ()=> {
+    if(isSending) return;
+    closeModal();
+    if(currentAction === 'send' || currentAction === 'sendBack'){
+      await performAction(currentAction);
+    }
+  });
+
+  // Update badge helper
+  function setBadge(state, text){
+    badge.className = 'badge ' + state;
+    badge.textContent = text;
+  }
+
+  // Simulate network call. Replace this with fetch('/api/send', {...}) to call backend.
+  function simulateNetwork(payload){
+    return new Promise((resolve, reject)=>{
+      // random success/failure to demonstrate error handling (remove randomness in production)
+      setTimeout(()=>{
+        if(Math.random() < 0.9){ // 90% success
+          resolve({ok:true, id: Math.floor(Math.random()*100000)});
+        } else {
+          reject(new Error('Network error'));
+        }
+      }, 900 + Math.random()*800);
+    });
+  }
+
+  async function performAction(action){
+    isSending = true;
+    disableControls(true);
+    setBadge('sending','Sending...');
+    statusText.textContent = action === 'send' ? 'Forwarding document...' : 'Sending back with comment...';
+
+    const payload = {
+      documentId: 'doc-12345',
+      action: action,
+      comment: action === 'sendBack' ? commentInput.value.trim() : '',
+      timestamp: (new Date()).toISOString()
+    };
+
+    try {
+      // TODO: replace simulateNetwork with real fetch() to your API
+      // Example:
+      // const res = await fetch('/api/documents/action', {
+      //   method: 'POST',
+      //   headers: {'Content-Type':'application/json'},
+      //   body: JSON.stringify(payload)
+      // });
+      // const data = await res.json();
+      const data = await simulateNetwork(payload);
+
+      // success UI
+      setBadge('success', action === 'send' ? 'Sent' : 'Sent back');
+      statusText.textContent = action === 'send' ? 'Document forwarded to senior officer.' : 'Document returned with comment.';
+      updatedAt.textContent = (new Date()).toLocaleString();
+      // Optionally clear comment after sending back
+      if(action === 'sendBack') commentInput.value = '';
+
+      // show a short success toast (simple)
+      showTemporaryMessage('Action completed successfully.');
+    } catch(err){
+      console.error(err);
+      setBadge('error','Error');
+      statusText.textContent = 'Failed to complete action. Please try again.';
+      showTemporaryMessage('There was an error. Check your connection and try again.', true);
+    } finally {
+      isSending = false;
+      disableControls(false);
+    }
+  }
+
+  function disableControls(disable){
+    btnSend.disabled = disable;
+    btnSendBack.disabled = disable;
+    btnDownload.disabled = disable;
+    modalConfirm.disabled = disable;
+  }
+
+  // Simple transient message below the status (non-blocking)
+  function showTemporaryMessage(msg, isError){
+    const div = document.createElement('div');
+    div.setAttribute('role','status');
+    div.className = 'small muted';
+    div.style.marginTop = '8px';
+    div.textContent = msg;
+    if(isError) div.style.color = 'var(--danger)';
+    const panel = document.querySelector('.panel');
+    panel.appendChild(div);
+    setTimeout(()=> div.remove(), 4200);
+  }
+
+  // Init accessible labels
+  btnSend.setAttribute('aria-label','Send document to senior officer');
+  btnSendBack.setAttribute('aria-label','Send document back to origin with comment');
+})();
+</script>
+</body>
+</html>
