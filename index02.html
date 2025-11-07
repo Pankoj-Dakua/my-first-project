@@ -212,7 +212,7 @@
     </section>
 
     <aside class="panel" aria-labelledby="statusTitle">
-      <h3 id="statusTitle">Status</h3>
+      <h3 id="statusTitle">Statusss</h3>
 
       <div class="status" aria-live="polite">
         <div id="badge" class="badge idle">Idle</div>
@@ -426,3 +426,23 @@
 </script>
 </body>
 </html>
+
+<!---------
+How to make it work with your backend
+
+Replace the simulateNetwork(payload) call with fetch('/your/api/endpoint', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) }).
+
+Return a JSON with { ok: true } on success and handle non-2xx responses.
+
+If you want, I can:
+
+adapt the UI to match your organization’s colors,
+
+wire it to a specific API shape,
+
+add email notifications or audit log entries,
+
+or provide a minimal server example (Node/Express) to accept the requests.
+
+Which of those would you like next?
+----->
